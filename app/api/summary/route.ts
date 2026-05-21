@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 import { AuditResult } from '@/types'
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,13 +22,9 @@ Total potential savings: $${totalMonthlySavings}/month ($${totalAnnualSavings}/y
 
 Write a direct, confident 100-word paragraph. Start with the biggest insight. Be specific with numbers. End with one actionable next step. Do not use bullet points. Do not use headers. Sound like a trusted advisor, not a sales pitch.`
 
-    const message = await client.messages.create({
-      model: 'claude-opus-4-5',
-      max_tokens: 200,
-      messages: [{ role: 'user', content: prompt }],
-    })
-
-    const summary = message.content[0].type === 'text' ? message.content[0].text : ''
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+    const result = await model.generateContent(prompt)
+    const summary = result.response.text()
 
     return NextResponse.json({ summary })
   } catch (error) {
