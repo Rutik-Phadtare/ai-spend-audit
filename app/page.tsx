@@ -1,65 +1,100 @@
-import Image from "next/image";
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import SpendForm from '@/components/SpendForm'
+import { SpendFormData, AuditResult } from '@/types'
+import { runAudit } from '@/lib/audit-engine'
 
 export default function Home() {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSubmit = async (formData: SpendFormData) => {
+    setIsLoading(true)
+    setError('')
+
+    try {
+      // Run audit engine locally
+      const auditResult: AuditResult = runAudit(formData)
+
+      // Save to Firebase + get AI summary
+      const res = await fetch('/api/audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(auditResult),
+      })
+
+      if (!res.ok) throw new Error('Failed to save audit')
+
+      const { id } = await res.json()
+
+      // Redirect to results page
+      router.push(`/audit/${id}`)
+    } catch (err) {
+      setError('Something went wrong. Please try again.')
+      setIsLoading(false)
+    }
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🔍</span>
+            <span className="font-bold text-xl">SpendSmart AI</span>
+          </div>
+          <span className="text-sm text-muted-foreground">Free AI Spend Audit</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </header>
+
+      {/* Hero */}
+      <section className="max-w-3xl mx-auto px-4 py-12 text-center">
+        <div className="inline-block bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full mb-4">
+          Free • No login required • Results in seconds
         </div>
-      </main>
-    </div>
-  );
+        <h1 className="text-4xl font-bold tracking-tight mb-4">
+          Are you overpaying for AI tools?
+        </h1>
+        <p className="text-lg text-muted-foreground mb-8">
+          Enter what you pay for AI tools today. Get an instant audit showing exactly
+          where you&apos;re overspending and how much you could save.
+        </p>
+
+        {/* Stats bar */}
+        <div className="grid grid-cols-3 gap-4 mb-10 text-center">
+          <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
+            <p className="text-2xl font-bold">$4,200</p>
+            <p className="text-xs text-muted-foreground">avg annual savings found</p>
+          </div>
+          <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
+            <p className="text-2xl font-bold">8</p>
+            <p className="text-xs text-muted-foreground">AI tools supported</p>
+          </div>
+          <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
+            <p className="text-2xl font-bold">2 min</p>
+            <p className="text-xs text-muted-foreground">to complete audit</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Form */}
+      <section className="max-w-3xl mx-auto px-4 pb-16">
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+            {error}
+          </div>
+        )}
+        <SpendForm onSubmit={handleSubmit} isLoading={isLoading} />
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t py-6 text-center text-sm text-muted-foreground">
+        Built by Credex · Free forever · No spam
+      </footer>
+    </main>
+  )
 }
