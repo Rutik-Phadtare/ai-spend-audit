@@ -1,5 +1,5 @@
 import { SpendFormData, AuditResult, ToolRecommendation, ToolId } from '@/types'
-import { v4 as uuidv4 } from 'uuid'
+import { randomUUID } from 'crypto'
 
 // ─── Spend Anomaly Check ──────────────────────────────────────────────────────
 
@@ -171,7 +171,7 @@ export function runAudit(formData: SpendFormData): AuditResult {
   const totalAnnualSavings = totalMonthlySavings * 12
 
   return {
-    id: uuidv4(),
+    id: randomUUID(),
     formData,
     recommendations,
     totalMonthlySpend,
