@@ -22,7 +22,7 @@ Total potential savings: $${totalMonthlySavings}/month ($${totalAnnualSavings}/y
 
 Write a direct, confident 100-word paragraph. Start with the biggest insight. Be specific with numbers. End with one actionable next step. Do not use bullet points. Do not use headers. Sound like a trusted advisor, not a sales pitch.`
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' })
     const result = await model.generateContent(prompt)
     const summary = result.response.text()
 
