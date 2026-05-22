@@ -7,6 +7,17 @@ function checkSpendAnomaly(
   toolId: ToolId, toolName: string, plan: string,
   monthlySpend: number, seats: number, expectedPricePerSeat: number
 ): ToolRecommendation | null {
+  // Free plan but paying money — clear billing issue
+  if (expectedPricePerSeat === 0 && monthlySpend > 0) {
+    return {
+      toolId, toolName, currentPlan: plan, currentSpend: monthlySpend,
+      recommendedAction: 'optimize-seats',
+      projectedSpend: 0,
+      monthlySavings: monthlySpend,
+      annualSavings: monthlySpend * 12,
+      reasoning: `You entered $${monthlySpend}/mo for ${toolName} ${plan} which should be free. This may be a billing error or you may be on a paid tier without realizing it — worth investigating immediately.`,
+    }
+  }
   const expectedSpend = seats * expectedPricePerSeat
   if (expectedSpend === 0) return null
   if (monthlySpend > expectedSpend * 1.5) {
