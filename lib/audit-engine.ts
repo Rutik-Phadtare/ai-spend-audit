@@ -170,8 +170,9 @@ export function runAudit(formData: SpendFormData): AuditResult {
   const totalMonthlySavings = totalMonthlySpend - totalProjectedSpend
   const totalAnnualSavings = totalMonthlySavings * 12
 
+  
   return {
-    id: randomUUID(),
+    id: crypto.randomUUID(),
     formData,
     recommendations,
     totalMonthlySpend,
