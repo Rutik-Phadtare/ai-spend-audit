@@ -53,9 +53,14 @@ export default function Home() {
 
       {/* Hero */}
       <section className="max-w-3xl mx-auto px-4 py-12 text-center">
-        <div className="inline-block bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full mb-4">
+        <div className="flex flex-col items-center gap-2 mb-4">
+        <div className="inline-block bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
           Free • No login required • Results in seconds
         </div>
+        <div className="text-xs text-muted-foreground">
+          No GitHub access • No repo scanning • No bank account needed
+        </div>
+      </div>
         <h1 className="text-4xl font-bold tracking-tight mb-4">
           Are you overpaying for AI tools?
         </h1>

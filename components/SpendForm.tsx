@@ -159,25 +159,30 @@ export default function SpendForm({ onSubmit, isLoading }: SpendFormProps) {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Monthly Spend ($)</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={tool.monthlySpend}
-                    onChange={e => updateTool(index, 'monthlySpend', Number(e.target.value))}
-                    required
-                  />
-                </div>
+                <Label>Monthly Spend ($)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  // Shows the number if it exists; if it's blank or undefined, falls back to empty string
+                  value={tool.monthlySpend === undefined || tool.monthlySpend === null ? "" : tool.monthlySpend}
+                  onChange={e => updateTool(index, 'monthlySpend', e.target.value)}
+                  // Faint background text when the field is completely empty
+                  placeholder="0" 
+                  required
+                />
+              </div>
                 <div className="space-y-2">
-                  <Label>Number of Seats</Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={tool.seats}
-                    onChange={e => updateTool(index, 'seats', Number(e.target.value))}
-                    required
-                  />
-                </div>
+                <Label>Number of Seats</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={tool.seats === undefined || tool.seats === null ? "" : tool.seats}
+                  onChange={e => updateTool(index, 'seats', e.target.value)}
+                  // Faint background text suggesting a baseline of 1 seat
+                  placeholder="1"
+                  required
+                />
+              </div>
               </CardContent>
             </Card>
           )

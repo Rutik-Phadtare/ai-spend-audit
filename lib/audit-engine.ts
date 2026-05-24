@@ -46,7 +46,9 @@ function optimalResult(toolId: ToolId, toolName: string, plan: string, monthlySp
 // ─── Per-tool audit logic ─────────────────────────────────────────────────────
 
 function auditCursor(entry: SpendFormData['tools'][0], teamSize: number, useCase: string): ToolRecommendation {
-  const { plan, monthlySpend, seats } = entry
+  const { plan } = entry
+const monthlySpend = Number(entry.monthlySpend)
+const seats = Number(entry.seats)
   const toolName = 'Cursor'
   const planPrices: Record<string, number> = { 'Hobby': 0, 'Pro': 20, 'Business': 40, 'Enterprise': 100 }
 
@@ -68,7 +70,9 @@ function auditCursor(entry: SpendFormData['tools'][0], teamSize: number, useCase
 }
 
 function auditGithubCopilot(entry: SpendFormData['tools'][0], teamSize: number): ToolRecommendation {
-  const { plan, monthlySpend, seats } = entry
+  const { plan } = entry
+const monthlySpend = Number(entry.monthlySpend)
+const seats = Number(entry.seats)
   const toolName = 'GitHub Copilot'
   const planPrices: Record<string, number> = { 'Individual': 10, 'Business': 19, 'Enterprise': 39 }
 
@@ -82,7 +86,9 @@ function auditGithubCopilot(entry: SpendFormData['tools'][0], teamSize: number):
 }
 
 function auditClaude(entry: SpendFormData['tools'][0], teamSize: number): ToolRecommendation {
-  const { plan, monthlySpend, seats } = entry
+  const { plan } = entry
+const monthlySpend = Number(entry.monthlySpend)
+const seats = Number(entry.seats)
   const toolName = 'Claude'
   const planPrices: Record<string, number> = { 'Free': 0, 'Pro': 20, 'Max': 100, 'Team': 30, 'Enterprise': 60, 'API direct': 0 }
 
@@ -100,7 +106,9 @@ function auditClaude(entry: SpendFormData['tools'][0], teamSize: number): ToolRe
 }
 
 function auditChatGPT(entry: SpendFormData['tools'][0], teamSize: number): ToolRecommendation {
-  const { plan, monthlySpend, seats } = entry
+  const { plan } = entry
+const monthlySpend = Number(entry.monthlySpend)
+const seats = Number(entry.seats)
   const toolName = 'ChatGPT'
   const planPrices: Record<string, number> = { 'Plus': 20, 'Team': 30, 'Enterprise': 60, 'API direct': 0 }
 
@@ -118,7 +126,9 @@ function auditChatGPT(entry: SpendFormData['tools'][0], teamSize: number): ToolR
 }
 
 function auditGemini(entry: SpendFormData['tools'][0], useCase: string): ToolRecommendation {
-  const { plan, monthlySpend, seats } = entry
+  const { plan } = entry
+const monthlySpend = Number(entry.monthlySpend)
+const seats = Number(entry.seats)
   const toolName = 'Gemini'
   const planPrices: Record<string, number> = { 'Free': 0, 'Advanced': 20, 'Business': 24, 'Enterprise': 36, 'API': 0 }
 
@@ -132,7 +142,9 @@ function auditGemini(entry: SpendFormData['tools'][0], useCase: string): ToolRec
 }
 
 function auditWindsurf(entry: SpendFormData['tools'][0], teamSize: number): ToolRecommendation {
-  const { plan, monthlySpend, seats } = entry
+  const { plan } = entry
+  const monthlySpend = Number(entry.monthlySpend)
+  const seats = Number(entry.seats)
   const toolName = 'Windsurf'
   const planPrices: Record<string, number> = { 'Free': 0, 'Pro': 15, 'Teams': 35, 'Enterprise': 60 }
 
@@ -165,8 +177,8 @@ export function runAudit(formData: SpendFormData): AuditResult {
     recommendations.push(rec)
   }
 
-  const totalMonthlySpend = tools.reduce((s, t) => s + t.monthlySpend, 0)
-  const totalProjectedSpend = recommendations.reduce((s, r) => s + r.projectedSpend, 0)
+  const totalMonthlySpend = tools.reduce((s, t) => s + Number(t.monthlySpend), 0)
+  const totalProjectedSpend = recommendations.reduce((s, r) => s + Number(r.projectedSpend), 0)
   const totalMonthlySavings = totalMonthlySpend - totalProjectedSpend
   const totalAnnualSavings = totalMonthlySavings * 12
 
