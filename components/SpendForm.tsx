@@ -102,8 +102,9 @@ export default function SpendForm({ onSubmit, isLoading }: SpendFormProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label>Primary Use Case</Label>
+            <Label htmlFor="use-case">Primary Use Case</Label>
             <select
+              id="use-case"
               value={useCase}
               onChange={e => setUseCase(e.target.value as UseCase)}
               className="w-full border rounded-md px-3 py-2 text-sm bg-background"
@@ -135,8 +136,9 @@ export default function SpendForm({ onSubmit, isLoading }: SpendFormProps) {
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>AI Tool</Label>
+                  <Label htmlFor={`tool-${index}`}>AI Tool</Label>
                   <select
+                    id={`tool-${index}`}
                     value={tool.toolId}
                     onChange={e => updateTool(index, 'toolId', e.target.value)}
                     className="w-full border rounded-md px-3 py-2 text-sm bg-background"
@@ -147,8 +149,9 @@ export default function SpendForm({ onSubmit, isLoading }: SpendFormProps) {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Plan</Label>
+                  <Label htmlFor={`plan-${index}`}>Plan</Label>
                   <select
+                    id={`plan-${index}`}
                     value={tool.plan}
                     onChange={e => updateTool(index, 'plan', e.target.value)}
                     className="w-full border rounded-md px-3 py-2 text-sm bg-background"
