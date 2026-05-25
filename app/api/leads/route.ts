@@ -99,6 +99,10 @@ Built by Credex · Free forever · No spam`,
         <p style="margin-top: 24px; color: #64748b; font-size: 14px;">
           Built by Credex · Free forever · No spam
         </p>
+        <p style="margin-top: 16px; color: #64748b; font-size: 12px;">
+          To make sure you don't miss future audit updates, 
+          drag this email to your Primary inbox.
+        </p>
       </div>
     `,
   })

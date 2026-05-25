@@ -152,6 +152,7 @@ export default function AuditPageClient() {
           <Card className="border-green-500">
             <CardContent className="pt-6 text-center">
               <p className="text-green-400 font-medium">✓ Report sent! Check your inbox.</p>
+              <p className="text-orange-500 font-medium">Email can appear in your spam or promotional folders.</p>
             </CardContent>
           </Card>
         )}
