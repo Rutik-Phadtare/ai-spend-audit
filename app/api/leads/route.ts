@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       query(collection(db, 'leads'), where('email', '==', lead.email))
     )
     if (existing.size >= 3) {
-      return NextResponse.json({ success: true }) // Silent pass
+      return NextResponse.json({ success: true })
     }
 
     // Save lead to Firestore
@@ -26,17 +26,16 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     })
 
-    // CRITICAL FIX: We MUST await this call. 
-    // In serverless environments (Vercel), background promises are killed instantly when a response is returned.
-    if (process.env.BREVO_API_KEY) {
+    // Send email via Brevo SMTP
+    if (process.env.BREVO_SMTP_USER && process.env.BREVO_SMTP_PASS) {
       try {
         await sendConfirmationEmail(lead)
+        console.log('Email sent successfully to:', lead.email)
       } catch (err: any) {
-        // This will now reliably print in your terminal logs if Brevo rejects it!
         console.error('Email sending failed:', err.message)
       }
     } else {
-      console.warn('Warning: BREVO_API_KEY environment variable is missing.')
+      console.warn('Warning: Brevo SMTP credentials missing.')
     }
 
     return NextResponse.json({ success: true })
@@ -47,56 +46,60 @@ export async function POST(req: NextRequest) {
 }
 
 async function sendConfirmationEmail(lead: LeadData) {
-  let response: Response
+  const nodemailer = await import('nodemailer')
 
-  // CRITICAL FIX: Replace this with the exact email address verified on your Brevo Account!
-  // If you used your personal gmail to sign up for Brevo, write that exact gmail here.
-  const VERIFIED_SENDER_EMAIL = 'neo721955@gmail.com'
+  const transporter = nodemailer.default.createTransport({
+    host: 'smtp-relay.brevo.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.BREVO_SMTP_USER,
+      pass: process.env.BREVO_SMTP_PASS,
+    },
+  })
 
-  try {
-    response = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'api-key': process.env.BREVO_API_KEY || '',
-      },
-      body: JSON.stringify({
-        sender: { name: 'SpendSmart AI', email: VERIFIED_SENDER_EMAIL },
-        to: [{ email: lead.email }],
-        subject: 'Your AI Spend Audit Report',
-        htmlContent: `
-          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #1e293b;">Your AI Spend Audit is Ready 🔍</h2>
-            <p>Hi${lead.companyName ? ` from ${lead.companyName}` : ''},</p>
-            <p>Your audit identified <strong>$${lead.totalMonthlySavings.toFixed(0)}/month</strong> 
-            in potential savings on your AI tools.</p>
-            ${lead.totalMonthlySavings > 500 ? `
-            <div style="background: #f8f4ff; padding: 16px; border-radius: 8px; margin: 20px 0;">
-              <p style="margin: 0; color: #7c3aed;">
-                <strong>Your savings potential qualifies for a free Credex consultation.</strong>
-                Our team will reach out shortly to show you how to capture even more savings
-                through discounted AI credits.
-              </p>
-            </div>` : ''}
-            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/audit/${lead.auditId}" 
-               style="display: inline-block; background: #1e293b; color: white; 
-               padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-top: 16px;">
-              View Your Full Report →
-            </a>
-            <p style="margin-top: 24px; color: #64748b; font-size: 14px;">
-              Built by Credex · Free forever · No spam
-            </p>
-          </div>
-        `,
-      }),
-    })
-  } catch (networkErr) {
-    throw new Error(`Brevo network error: ${(networkErr as Error).message}`)
-  }
+  await transporter.sendMail({
+    from: `"SpendSmart AI" <${process.env.BREVO_SENDER_EMAIL}>`,
+    to: lead.email,
+    subject: 'Your AI spend audit results',
+    headers: {
+      'X-Priority': '1',
+      'X-MSMail-Priority': 'High',
+      'Importance': 'high',
+    },
+    // Plain text version helps avoid promotional tab
+    text: `Hi${lead.companyName ? ` from ${lead.companyName}` : ''},
 
-  if (!response.ok) {
-    const errorBody = await response.text()
-    throw new Error(`Brevo API error ${response.status}: ${errorBody}`)
-  }
+Your audit identified $${lead.totalMonthlySavings.toFixed(0)}/month in potential savings on your AI tools.
+
+${lead.totalMonthlySavings > 500 ? 'Your savings potential qualifies for a free Credex consultation. Our team will reach out shortly.' : ''}
+
+View your full report: ${process.env.NEXT_PUBLIC_APP_URL}/audit/${lead.auditId}
+
+Built by Credex · Free forever · No spam`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #1e293b;">Your AI Spend Audit is Ready 🔍</h2>
+        <p>Hi${lead.companyName ? ` from ${lead.companyName}` : ''},</p>
+        <p>Your audit identified <strong>$${lead.totalMonthlySavings.toFixed(0)}/month</strong>
+        in potential savings on your AI tools.</p>
+        ${lead.totalMonthlySavings > 500 ? `
+        <div style="background: #f8f4ff; padding: 16px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #7c3aed;">
+            <strong>Your savings potential qualifies for a free Credex consultation.</strong>
+            Our team will reach out shortly to show you how to capture even more savings
+            through discounted AI credits.
+          </p>
+        </div>` : ''}
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/audit/${lead.auditId}"
+           style="display: inline-block; background: #1e293b; color: white;
+           padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-top: 16px;">
+          View Your Full Report →
+        </a>
+        <p style="margin-top: 24px; color: #64748b; font-size: 14px;">
+          Built by Credex · Free forever · No spam
+        </p>
+      </div>
+    `,
+  })
 }
