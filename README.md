@@ -14,10 +14,10 @@ on the right plan.
 ![SpendSmart AI Landing Page](public/screenshots/landing.png)
 
 ### Audit Results — Savings Found
-![Audit Results with Savings](public\screenshots\results-savings.png)
+![Audit Results with Savings](public/screenshots/results-optimal.png)
 
 ### Audit Results — Already Optimized
-![Audit Results Optimized](public\screenshots\results-optimal.png)
+![Audit Results Optimized](public/screenshots/results-savings.png)
 
 
 ## Live URL
