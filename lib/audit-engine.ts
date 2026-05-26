@@ -27,7 +27,7 @@ function checkSpendAnomaly(
       projectedSpend: expectedSpend,
       monthlySavings: monthlySpend - expectedSpend,
       annualSavings: (monthlySpend - expectedSpend) * 12,
-      reasoning: `Expected spend for ${seats} seat(s) on ${plan} is $${expectedSpend}/mo but you entered $${monthlySpend}/mo. You may have more seats than needed or a billing error worth investigating.`,
+      reasoning: `Expected spend for ${seats} seat(s) on ${plan} is $${expectedSpend}/mo but you entered $${monthlySpend}/mo. You may have upgraded for a project and forgotten to downgrade, or have more seats than your team actively uses.`,
     }
   }
   return null
