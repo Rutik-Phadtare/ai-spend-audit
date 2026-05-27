@@ -172,7 +172,10 @@ export function runAudit(formData: SpendFormData): AuditResult {
       case 'chatgpt':        rec = auditChatGPT(entry, teamSize); break
       case 'gemini':         rec = auditGemini(entry, useCase); break
       case 'windsurf':       rec = auditWindsurf(entry, teamSize); break
-      default:               rec = optimalResult(entry.toolId, entry.toolId, entry.plan, entry.monthlySpend)
+      default:                 rec = {
+    ...optimalResult(entry.toolId, entry.toolId, entry.plan, entry.monthlySpend),
+    reasoning: `API direct pricing depends on actual token usage. If your monthly bill exceeds $50, consider switching to a cheaper model tier (e.g. Claude Haiku vs Sonnet saves ~80% per token) or implementing response caching to reduce redundant API calls.`
+  }
     }
     recommendations.push(rec)
   }
